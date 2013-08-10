@@ -15,6 +15,13 @@ var listenLeft = false; var listenRight = false; var getReady = 0;
 
 var count2 = 0;
 
+var s1 = 1; var s2 = 1; var s3 = 1;
+
+var diff = 15; var normal = 96.5;
+
+var diff2 = WIDTH/3; var diff3 = diff2;
+
+var b1 = true; var b2 = true; var b3 = true;
 
 
 Leap.loop(function(frame) {
@@ -26,7 +33,7 @@ Leap.loop(function(frame) {
 	}
 
 	for (var handId = 0, handCount = handsLength; handId != handCount; handId++) {
-		
+			
 		var hand = frame.hands[handId];
 		var x = Math.floor(hand.palmPosition[0]);
 		var y = Math.floor(hand.palmPosition[2]);
@@ -43,6 +50,7 @@ Leap.loop(function(frame) {
           	j++;
         }
         
+        if (b3){
         
         var p1 = new Point(fingers[0],fingers[1],fingers[2]);
         var p2 = new Point(fingers[3],fingers[4],fingers[5]);
@@ -55,7 +63,7 @@ Leap.loop(function(frame) {
         	        	
         	if (!set){ 
         		
-        		if (ave > 100) set = true;
+        		if (ave > normal + diff) set = true;
         		
         	}
         	
@@ -68,7 +76,7 @@ Leap.loop(function(frame) {
 			        	
         	var ave = Math.abs(average(p1,p2,p3));
         	
-			if (ave < 85 && count > 5){
+			if (ave < normal - diff && count > 5*(1/s3)){
 				remove();
 				set = false;
 				count = 0;
@@ -87,18 +95,24 @@ Leap.loop(function(frame) {
 			}
 		} 
 		
+		}
+		
+		if (b1 || b2){
+		
 		var x1 = fingers[0];
 		if (hand.pointables.length == 4 || hand.pointables.length == 5){
 		
 			getReady = 0;
-			if (x < WIDTH/3 && !listenLeft){
+			
+			
+			if (x < WIDTH/3 && !listenLeft && b1){
 			
 				listenLeft = true;
 				start = x;
 				
 			}			
 			
-			if (x > 0-WIDTH/3 && !listenRight){
+			if (x > 0-WIDTH/3 && !listenRight && b2){
 			
 				listenRight = true;
 				start = x;
@@ -108,12 +122,11 @@ Leap.loop(function(frame) {
 			
 			if (listenLeft){
 				
-				if (x > start+WIDTH/3){
+				if (x > start+diff2){
 					
 					chrome.tabs.executeScript({
     					code: 'history.back()'
   					});
-  					
   					
 					listenLeft = false;
 					
@@ -124,12 +137,11 @@ Leap.loop(function(frame) {
 			
 			if (listenRight){
 			
-				if (x < start-WIDTH/3){					
+				if (x < start-diff3){					
 					
 					chrome.tabs.executeScript({
     					code: 'history.forward()'
   					});
-  					
   					
 					listenRight = false;
 				}
@@ -147,17 +159,42 @@ Leap.loop(function(frame) {
 			
 			
 		}
-   	
+   	}
 	}
 	
 });
+
+var st = 0;
+
+function changeThreshold(ts1,ts2,ts3,bt1,bt2,bt3){
+	
+	s1=(ts1/50);
+	s2=ts2/50;
+	s3=ts3/50;
+	
+	b1 = bt1;
+	b2 = bt2;
+	b3 = bt3;	
+	
+	if (s3 < 1){
+		s3 = s3 + (1-s3)/3 
+	}else{
+		s3 = s3 - (s3-1)/3
+	}
+	
+	diff = (22*(1/s3))/2;
+	
+	diff2 = (WIDTH/3)/s1;
+	diff3 = (WIDTH/3)/s2;
+	
+}
 
 function remove(){
 
 	chrome.tabs.getSelected(function(tab) {
     	chrome.tabs.remove(tab.id, function() { });
 	}); 
-
+	
 }
 
 function Point(x1,y1,z1){
@@ -188,6 +225,6 @@ function dst(p1, p2){
 
 function average(p1,p2,p3){
 	
-	return (dst(p1,p2)+dst(p1,p3)+dst(p2,p3))/3
+	return (dst(p1,p2)+dst(p1,p3)+dst(p2,p3))/3;
 
 }
