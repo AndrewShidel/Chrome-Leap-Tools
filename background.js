@@ -15,13 +15,15 @@ var listenLeft = false; var listenRight = false; var getReady = 0;
 
 var count2 = 0;
 
-var s1 = 1; var s2 = 1; var s3 = 1;
+var s1 = 1; var s2 = 1; var s3 = 1; var s4 = 50;
 
 var diff = 15; var normal = 96.5;
 
 var diff2 = WIDTH/3; var diff3 = diff2;
 
-var b1 = true; var b2 = true; var b3 = true;
+var b1 = true; var b2 = true; var b3 = true; var b4 = true;
+
+var st = 0;
 
 
 Leap.loop(function(frame) {
@@ -50,11 +52,39 @@ Leap.loop(function(frame) {
           	j++;
         }
         
+        if (b4){
+        
+        if (hand.pointables.length == 2 && z < 210){
+        	
+        	console.log("in");
+        	
+        	if (st != 0){
+        	
+        		var scroll = (fingers[1] - st)*s4;
+        	
+        		chrome.tabs.executeScript({
+    				code: "window.scrollBy(0,"+ scroll + ");"
+  				});
+  			
+  			}
+  			
+  			st = fingers[1];
+        
+        }else{
+        	
+        	st = 0;
+        
+        }
+        
+        }
+        
         if (b3){
         
         var p1 = new Point(fingers[0],fingers[1],fingers[2]);
         var p2 = new Point(fingers[3],fingers[4],fingers[5]);
         var p3 = new Point(fingers[6],fingers[7],fingers[8]);
+        
+        
         
         
         if (hand.pointables.length == 3 || hand.pointables.length == 4){
@@ -166,15 +196,17 @@ Leap.loop(function(frame) {
 
 var st = 0;
 
-function changeThreshold(ts1,ts2,ts3,bt1,bt2,bt3){
+function changeThreshold(ts1,ts2,ts3,ts4,bt1,bt2,bt3,bt4){
 	
 	s1=(ts1/50);
 	s2=ts2/50;
 	s3=ts3/50;
+	s4=ts4;
 	
 	b1 = bt1;
 	b2 = bt2;
-	b3 = bt3;	
+	b3 = bt3;
+	b4 = bt4;	
 	
 	if (s3 < 1){
 		s3 = s3 + (1-s3)/3 
