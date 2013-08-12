@@ -77,9 +77,7 @@ Leap.loop(function(frame) {
         	if (inFOR > 10){        
         	
         	vexit = hand.pointables[0].tipVelocity[1]
-        	
-        	console.log("in");
-        	
+        	        	
         	if (st != 0 && Math.abs(hand.pointables[0].tipVelocity[2]) < 100){
         	
         		var scroll = (fingers[1] - st)*s4;
