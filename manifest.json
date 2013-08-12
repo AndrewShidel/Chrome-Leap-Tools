@@ -6,6 +6,7 @@
     "tabs",
     "http://*/",
     "https://*/",
+    "<all_urls>",
     "storage"
   ],
   "background": {

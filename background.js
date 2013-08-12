@@ -25,6 +25,14 @@ var b1 = true; var b2 = true; var b3 = true; var b4 = true;
 
 var st = 0;
 
+var vexit = 0; var vexitT = 0;
+
+var inside = false;
+
+var inFOR = 0;
+
+var int; var startScroll = 0; var endScroll = 0;
+
 
 Leap.loop(function(frame) {
 	
@@ -54,25 +62,74 @@ Leap.loop(function(frame) {
         
         if (b4){
         
-        if (hand.pointables.length == 2 && z < 210){
+       
+        
+        if (hand.pointables.length == 2 && y < 100){
+        	
+        	
+        	
+        	clearInterval(int);
+        	
+        	
+        	
+        	inside = true;
+        	
+        	if (inFOR > 10){        
+        	
+        	vexit = hand.pointables[0].tipVelocity[1]
         	
         	console.log("in");
         	
-        	if (st != 0){
+        	if (st != 0 && Math.abs(hand.pointables[0].tipVelocity[2]) < 100){
         	
         		var scroll = (fingers[1] - st)*s4;
         	
+        		
+        		
         		chrome.tabs.executeScript({
     				code: "window.scrollBy(0,"+ scroll + ");"
   				});
+  				
+  				
+  				
+  			}
   			
   			}
+  			
+  			inFOR++;
   			
   			st = fingers[1];
         
         }else{
+        	inFOR = 0;
+        	if (inside){
+        		
+        		inside = false;
+        		
+        		if (vexit < 0) vexit *= 10;
+        		
+        		int = setInterval(function(){
+        		
+        			chrome.tabs.executeScript({
+    					code: "window.scrollBy(0,"+ vexit/30 + ");"
+  					});
+  					
+  					if (vexit < 0){
+  						vexit += 5;
+  					}else{
+  						vexit -= 5;
+  					}
+  					
+  					if ( Math.abs(vexit) < 10 ){
+  						vexit = 0;
+  						clearInterval(int)
+  					}
+        		
+        		},10);
         	
+        	}
         	st = 0;
+        	
         
         }
         
@@ -201,7 +258,10 @@ function changeThreshold(ts1,ts2,ts3,ts4,bt1,bt2,bt3,bt4){
 	s1=(ts1/50);
 	s2=ts2/50;
 	s3=ts3/50;
-	s4=ts4;
+	
+	//ts4 -= (ts4-50)*2;
+	
+	s4=ts4/10;
 	
 	b1 = bt1;
 	b2 = bt2;
