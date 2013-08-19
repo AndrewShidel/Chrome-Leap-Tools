@@ -2,6 +2,7 @@
  * Shidel Dev - Chrome Leap Tools - v0.1
  * Copyright (c) 2013 Andrew Shidel - shidel.com, contact@shidel.com
  */
+ 
 
 var WIDTH = 230;
 
@@ -31,7 +32,7 @@ var inside = false;
 
 var inFOR = 0;
 
-var int; var startScroll = 0; var endScroll = 0;
+var interval; var startScroll = 0; var endScroll = 0;
 
 
 Leap.loop(function(frame) {
@@ -68,22 +69,20 @@ Leap.loop(function(frame) {
         	
         	
         	
-        	clearInterval(int);
+        	clearInterval(interval);
         	
         	
         	
         	inside = true;
         	
-        	if (inFOR > 10){        
+        	//if (inFOR > 10){        
         	
         	vexit = hand.pointables[0].tipVelocity[1]
         	        	
         	if (st != 0 && Math.abs(hand.pointables[0].tipVelocity[2]) < 100){
         	
-        		var scroll = (fingers[1] - st)*s4;
-        	
-        		
-        		
+        		var scroll = ((fingers[1] - st)*s4)/8;
+        	        		
         		chrome.tabs.executeScript({
     				code: "window.scrollBy(0,"+ scroll + ");"
   				});
@@ -92,7 +91,7 @@ Leap.loop(function(frame) {
   				
   			}
   			
-  			}
+  			//}
   			
   			inFOR++;
   			
@@ -106,21 +105,23 @@ Leap.loop(function(frame) {
         		
         		if (vexit < 0) vexit *= 10;
         		
-        		int = setInterval(function(){
+        		       		
+        		
+        		interval = setInterval(function(){
         		
         			chrome.tabs.executeScript({
-    					code: "window.scrollBy(0,"+ vexit/30 + ");"
+    					code: "window.scrollBy(0,"+ (vexit/30)*(s4/50) + ");"
   					});
   					
   					if (vexit < 0){
-  						vexit += 5;
+  						vexit += 10;
   					}else{
-  						vexit -= 5;
+  						vexit -= 10;
   					}
   					
   					if ( Math.abs(vexit) < 10 ){
   						vexit = 0;
-  						clearInterval(int)
+  						clearInterval(interval)
   					}
         		
         		},10);
@@ -138,6 +139,16 @@ Leap.loop(function(frame) {
         var p1 = new Point(fingers[0],fingers[1],fingers[2]);
         var p2 = new Point(fingers[3],fingers[4],fingers[5]);
         var p3 = new Point(fingers[6],fingers[7],fingers[8]);
+        
+        /*
+        if (hand.pointables.length == 1){
+        
+        	chrome.tabs.executeScript({
+        		code:"var body = document.getElementsByTagName('body')[0];if(document.getElementById('apdiv7') == null){body.innerHTML += '<div id=apdiv7 style=position:absolute;background-color:#000;width:50px;height:50px;border-radius:25px;z-index:1100;top:200px;left:200px;></div>';}else{document.getElementById('apdiv7').style.left = "+fingers[0]+"+'px';document.getElementById('apdiv7').style.top = "+fingers[1]+"+'px';}"
+        		//code:"var body = document.getElementsByTagName('body')[0];body.innerHTML += '<div></div>'"
+        	});
+        }
+        */
         
         
         
@@ -259,7 +270,7 @@ function changeThreshold(ts1,ts2,ts3,ts4,bt1,bt2,bt3,bt4){
 	
 	//ts4 -= (ts4-50)*2;
 	
-	s4=ts4/10;
+	s4=ts4;
 	
 	b1 = bt1;
 	b2 = bt2;
