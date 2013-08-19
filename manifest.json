@@ -1,6 +1,7 @@
 {
   "name": "Chrome Leap Tools",
   "version": "0.2",
+  "description": "Leap Motion Gesture Controller.  Used To navigate history, scroll, and close tabs.  You must have the Leap motion controller plugged in, and the Leap Motion Software installed in order for Chrome Leap Tools to function.",
   "permissions": [
     "activeTab",
     "tabs",

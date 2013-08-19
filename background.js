@@ -34,6 +34,10 @@ var inFOR = 0;
 
 var interval; var startScroll = 0; var endScroll = 0;
 
+var pastx, pasty, pastz;
+
+var distance = 0; var fake = 100;
+
 
 Leap.loop(function(frame) {
 	
@@ -44,8 +48,9 @@ Leap.loop(function(frame) {
 	}
 
 	for (var handId = 0, handCount = handsLength; handId != handCount; handId++) {
-			
+		
 		var hand = frame.hands[handId];
+		
 		var x = Math.floor(hand.palmPosition[0]);
 		var y = Math.floor(hand.palmPosition[2]);
 		var z = Math.floor(hand.palmPosition[1]);
@@ -65,7 +70,7 @@ Leap.loop(function(frame) {
         
        
         
-        if (hand.pointables.length == 2 && y < 100){
+        if (hand.pointables.length == 2 && y < 100 && handsLength == 1){
         	
         	
         	
@@ -121,7 +126,7 @@ Leap.loop(function(frame) {
   					
   					if ( Math.abs(vexit) < 10 ){
   						vexit = 0;
-  						clearInterval(interval)
+  						clearInterval(interval);
   					}
         		
         		},10);
@@ -132,6 +137,34 @@ Leap.loop(function(frame) {
         
         }
         
+        }
+        
+        
+        if (handsLength == 2 && Math.abs(hand.pointables[0].tipVelocity[2]) < 100){
+        	
+        	var td = dst2(frame.hands[0].palmPosition[0],frame.hands[0].palmPosition[1],frame.hands[0].palmPosition[2],frame.hands[1].palmPosition[0],frame.hands[1].palmPosition[1],frame.hands[1].palmPosition[2])
+        	
+        	if (distance != 0){
+        		var zoomBy = td - distance;
+        		if (zoomBy < 10){       	
+        			if (fake > 5){
+        				fake += zoomBy;
+        				
+        			chrome.tabs.executeScript({
+        				code: "document.body.style.zoom = "+fake+"+'%';"
+        			});
+        			}else{
+        				fake++;
+        			}
+        			
+        		}
+        		
+        	}
+        	
+        	distance = td
+        	
+        }else{
+        	distance = 0;
         }
         
         if (b3){
@@ -256,6 +289,11 @@ Leap.loop(function(frame) {
 			
 		}
    	}
+   	
+   	pastx = x;
+   	pasty = y;
+   	pastz = z;
+   	
 	}
 	
 });
@@ -291,11 +329,22 @@ function changeThreshold(ts1,ts2,ts3,ts4,bt1,bt2,bt3,bt4){
 }
 
 function remove(){
-
+	
+	clearInterval(interval);
+	
+	var numTabs;
+	
+	chrome.tabs.getAllInWindow(null, function(tabs) {
+    	numTabs = tabs.length;
+    
+	if (numTabs != 1){
 	chrome.tabs.getSelected(function(tab) {
     	chrome.tabs.remove(tab.id, function() { });
 	}); 
-	
+	}else{
+		chrome.tabs.update({url: "http://google.com"})
+	}
+	});
 }
 
 function Point(x1,y1,z1){
@@ -320,6 +369,13 @@ function Point(x1,y1,z1){
 
 function dst(p1, p2){
 	
+	return Math.sqrt( Math.pow(p1.X()-p2.X(),2) + Math.pow(p1.Y()-p2.Y(),2) + Math.pow(p1.Z()-p2.Z(),2) ); 
+
+}
+
+function dst2(x,y,z,x2,y2,z2){
+	var p1 = new Point(x,y,z);
+	var p2 = new Point(x2,y2,z2); 
 	return Math.sqrt( Math.pow(p1.X()-p2.X(),2) + Math.pow(p1.Y()-p2.Y(),2) + Math.pow(p1.Z()-p2.Z(),2) ); 
 
 }
